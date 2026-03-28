@@ -13,8 +13,8 @@ export const getProjectById = async (id: string) => {
 export const getAllProjects = async (filters: ProjectsFilters) => {
     const where: Prisma.ProjectWhereInput = {};
 
-    if (filters.title) {
-        where.title = { contains: filters.title, mode: 'insensitive' };
+    if (filters.name) {
+        where.name = { contains: filters.name, mode: 'insensitive' };
     }
 
     const projects = await prisma.project.findMany({

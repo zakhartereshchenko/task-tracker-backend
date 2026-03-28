@@ -1,3 +1,3 @@
 export interface ProjectsFilters {
-    title?: string;
+    name?: string;
 }
