@@ -1,0 +1,76 @@
+import { Request, Response } from "express";
+import { createNewTask, deleteTaskById, getAllTasks, getTaskById, updateTaskById } from "./task.service.js";
+import { TaskFilters, TaskPriorityEnum, TaskStatusEnum } from "./task.types.js";
+
+export const createTask = async (req: Request, res: Response) => {
+    try{
+        const projectId = req.params.projectId as string;
+        const task = req.body;
+
+        const newTask = await createNewTask(projectId, task);
+
+        res.status(201).json(newTask);
+    }catch(error){
+        res.status(500).json({error})
+    }
+}
+
+export const getTask = async (req: Request, res: Response) => {
+    try{
+        const projectId = req.params.projectId as string;
+        const taskId = req.params.taskId as string;
+
+        const task = await getTaskById(taskId, projectId);
+
+        res.json(task);
+    }catch(error){
+        res.status(500).json({error})
+    }
+}
+
+export const getTasks = async (req:Request, res:Response) => {
+    try{
+        const filters: TaskFilters = {};
+        const projectId = req.params.projectId as string;
+
+        if (req.query.status) filters.status = req.query.status as TaskStatusEnum;
+        if (req.query.priority) filters.priority = req.query.priority as TaskPriorityEnum;
+        if (req.query.assigneeId) filters.assigneeId = req.query.assigneeId as string;
+        if (req.query.creatorId) filters.creatorId = req.query.creatorId as string;
+        if (req.query.labels) filters.labels = req.query.labels as string[];
+        if (req.query.title) filters.title = req.query.title as string;
+
+        const tasks = await getAllTasks(projectId, filters)
+
+        res.json(tasks);
+    }catch(error){
+        res.status(500).json({error})
+    }
+}
+
+export const updateTask = async (req:Request, res:Response) => {
+    try{
+        const projectId = req.params.projectId as string;
+        const taskId = req.params.taskId as string;
+        const task = req.body;
+
+        const updatedTask = await updateTaskById(projectId, taskId, task);
+
+        res.json(updatedTask);
+    }catch(error){
+        res.status(500).json({error})
+    }
+}
+
+export const deleteTask = async (req:Request, res:Response) => {
+    try{
+        const projectId = req.params.projectId as string;
+        const taskId = req.params.taskId as string;
+
+        const deletedTask = await deleteTaskById(projectId, taskId);
+
+        res.json(deletedTask);
+    }catch(error){
+        res.status(500).json({error})
+    }
+}
