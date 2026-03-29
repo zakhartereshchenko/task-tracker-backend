@@ -6,3 +6,5 @@ export interface UserFilters {
     username?: string;
     projectId?: string;
 }
+
+export type UserData = Pick<User, "id" | "username">;

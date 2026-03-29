@@ -24,8 +24,8 @@ export const registerUser = async (data: LoginData) => {
         expiresIn: `${JWT_TOKEN_LIFE_DAYS}d`
     });
 
-    const { password: _, ...userWithoutPassword } = newUser;
-    return { user: userWithoutPassword, token };
+    const { username: createdUsername, id } = newUser;
+    return { user: { username: createdUsername, id } as UserData, token };
 };
 
 export const loginUser = async (data: LoginData) => {
@@ -46,14 +46,14 @@ export const loginUser = async (data: LoginData) => {
         expiresIn: `${JWT_TOKEN_LIFE_DAYS}d`
     });
 
-    const { password: _, ...userWithoutPassword } = user;
-    return { user: userWithoutPassword, token };
+    const { username: foundUsername, id } = user;
+    return { user: { username: foundUsername, id } as UserData, token };
 };
 
-export const checkUserExists = (data: UserData) => {
-    const user = getUserById(data.id);
+export const checkUserExists = async (data: UserData) => {
+    const user = await getUserById(data.id);
     if (!user) {
         throw new Error("User not found");
     }
-    return user;
+    return { username: user.username, id: user.id } as UserData;
 }

@@ -9,7 +9,7 @@ export const register = async (req: Request, res: Response) => {
         
         res.cookie("token", token, {
             httpOnly: true,
-            sameSite: "strict",
+            sameSite: "lax",
             maxAge: JWT_TOKEN_LIFE_MS
         });
 
@@ -25,7 +25,7 @@ export const login = async (req: Request, res: Response) => {
         
         res.cookie("token", token, {
             httpOnly: true,
-            sameSite: "strict",
+            sameSite: "lax",
             maxAge: JWT_TOKEN_LIFE_MS
         });
 
@@ -38,7 +38,8 @@ export const login = async (req: Request, res: Response) => {
 export const logout = async (req: Request, res: Response) => {
     res.cookie("token", "", {
         httpOnly: true,
-        expires: new Date(0)
+        sameSite: "lax",
+        maxAge: 0,
     });
     res.json({ message: "Logged out successfully" });
 };
