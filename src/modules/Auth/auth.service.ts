@@ -1,8 +1,9 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import { createNewUser, getUserByUsername } from "../Users/user.service.js";
+import { createNewUser, getUserById, getUserByUsername } from "../Users/user.service.js";
 import { LoginData } from "./auth.types.js";
 import { JWT_SECRET, JWT_TOKEN_LIFE_DAYS } from "../../constants/api.js";
+import { UserData } from "../Users/user.types.js";
 
 export const registerUser = async (data: LoginData) => {
     const { username, password } = data;
@@ -48,3 +49,11 @@ export const loginUser = async (data: LoginData) => {
     const { password: _, ...userWithoutPassword } = user;
     return { user: userWithoutPassword, token };
 };
+
+export const checkUserExists = (data: UserData) => {
+    const user = getUserById(data.id);
+    if (!user) {
+        throw new Error("User not found");
+    }
+    return user;
+}

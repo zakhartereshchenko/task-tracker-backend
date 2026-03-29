@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
-import { registerUser, loginUser } from "./auth.service.js";
+import { registerUser, loginUser, checkUserExists } from "./auth.service.js";
 import { JWT_TOKEN_LIFE_MS } from "../../constants/api.js";
+import { AuthRequest } from "../../middlewares/auth.middleware.js";
 
 export const register = async (req: Request, res: Response) => {
     try {
@@ -41,3 +42,13 @@ export const logout = async (req: Request, res: Response) => {
     });
     res.json({ message: "Logged out successfully" });
 };
+
+export const authenticate = async (req: AuthRequest, res: Response) => {
+    const user = req.user;
+    if (user) {
+        const result = await checkUserExists(user)
+        res.json(result);
+    } else {
+        res.status(401).json({ error: "Unauthorized" });
+    }
+}
