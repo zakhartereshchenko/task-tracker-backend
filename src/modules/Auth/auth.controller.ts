@@ -15,7 +15,15 @@ export const register = async (req: Request, res: Response) => {
 
         res.status(201).json(user);
     } catch (error) {
-        res.status(400).json({ error });
+        if (error instanceof Error) {
+            return res.status(400).json({
+                error: error.message,
+            });
+        }
+
+        return res.status(400).json({
+            error: "Unknown error",
+        });
     }
 };
 
@@ -31,7 +39,15 @@ export const login = async (req: Request, res: Response) => {
 
         res.json(user);
     } catch (error) {
-        res.status(401).json({ error });
+        if (error instanceof Error) {
+            return res.status(400).json({
+                error: error.message,
+            });
+        }
+
+        return res.status(400).json({
+            error: "Unknown error",
+        });
     }
 };
 

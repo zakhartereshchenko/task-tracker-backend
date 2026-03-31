@@ -10,7 +10,7 @@ export const registerUser = async (data: LoginData) => {
 
     const existingUser = await getUserByUsername(username);
     if (existingUser) {
-        throw new Error("Username already taken");
+        throw new Error("Username already exists");
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
