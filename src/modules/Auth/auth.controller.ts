@@ -1,7 +1,6 @@
 import { Request, Response } from "express";
 import { registerUser, loginUser, checkUserExists } from "./auth.service.js";
 import { JWT_TOKEN_LIFE_MS } from "../../constants/api.js";
-import { AuthRequest } from "../../middlewares/auth.middleware.js";
 
 export const register = async (req: Request, res: Response) => {
     try {
@@ -60,7 +59,7 @@ export const logout = async (req: Request, res: Response) => {
     res.json({ message: "Logged out successfully" });
 };
 
-export const authenticate = async (req: AuthRequest, res: Response) => {
+export const authenticate = async (req: Request, res: Response) => {
     const user = req.user;
     if (user) {
         const result = await checkUserExists(user)

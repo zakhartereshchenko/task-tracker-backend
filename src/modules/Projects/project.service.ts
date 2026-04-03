@@ -10,19 +10,45 @@ export const getProjectById = async (id: string) => {
     return project;
 }
 
-export const getAllProjects = async (filters: ProjectsFilters) => {
+export const getAllProjects = async (filters: ProjectsFilters, userId: string) => {
     const where: Prisma.ProjectWhereInput = {};
 
     if (filters.name) {
-        where.name = { contains: filters.name, mode: 'insensitive' };
+        where.name = {
+            contains: filters.name,
+            mode: "insensitive",
+        };
     }
 
     const projects = await prisma.project.findMany({
-        where
+    where,
+    include: {
+        members: {
+            where: {
+                id: userId,
+            },
+            select: {
+                id: true,
+            },
+        },
+        _count: {
+            select: {
+                members: true,
+            },
+        },
+    },
     });
 
-    return projects;
-}
+    return projects.map((project) => {
+        const { _count, members, ...rest } = project;
+
+        return {
+            ...rest,
+            isMember: members.some(m => m.id === userId),
+            membersCount: _count.members,
+        };
+    });
+};
 
 export const createNewProject = async (project: Project) => {
     const { name, description } = project;
@@ -53,3 +79,29 @@ export const deleteProjectById = async (id: string) => {
 
     return deletedProject;
 }
+
+export const joinProjectById = async (projectId: string, userId: string) => {
+    return prisma.project.update({
+        where: { id: projectId },
+        data: {
+            members: {
+                connect: {
+                    id: userId,
+                },
+            },
+        },
+    });
+};
+
+export const leaveProjectById = async (projectId: string, userId: string) => {
+    return prisma.project.update({
+        where: { id: projectId },
+        data: {
+        members: {
+            disconnect: {
+            id: userId,
+            },
+        },
+        },
+    });
+};

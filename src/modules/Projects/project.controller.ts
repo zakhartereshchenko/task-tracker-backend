@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { createNewProject, deleteProjectById, getAllProjects, getProjectById, updateProjectById } from "./project.service.js";
+import { createNewProject, deleteProjectById, getAllProjects, getProjectById, joinProjectById, leaveProjectById, updateProjectById } from "./project.service.js";
 import { ProjectsFilters } from "./project.types.js";
 
 export const getProject = async (req: Request, res: Response) => {
@@ -16,11 +16,12 @@ export const getProject = async (req: Request, res: Response) => {
 
 export const getProjects = async (req: Request, res: Response) => {
     try{
+        const userId = req.user.id;
         const filters: ProjectsFilters = {};
 
         if (req.query.name) filters.name = req.query.name as string;
 
-        const projects = await getAllProjects(filters);
+        const projects = await getAllProjects(filters, userId);
 
         res.json(projects);
     }catch(error){
@@ -64,3 +65,29 @@ export const deleteProject = async (req: Request, res: Response) => {
         res.status(500).json({error})
     }
 }
+
+export const joinProject = async (req: Request, res: Response) => {
+    try {
+        const userId = req.user.id;
+        const projectId = req.params.projectId as string;
+
+        await joinProjectById(projectId, userId);
+
+        res.json({ success: true });
+    } catch (error) {
+        res.status(500).json({ error });
+    }
+};
+
+export const leaveProject = async (req: Request, res: Response) => {
+  try {
+    const userId = req.user.id;
+    const projectId = req.params.projectId as string;
+
+    await leaveProjectById(projectId, userId);
+
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error });
+  }
+};
