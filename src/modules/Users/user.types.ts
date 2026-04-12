@@ -1,4 +1,4 @@
-import { User } from "../../generated/prisma/index.js";
+import { User } from "@prisma/client";
 
 export type NewUser = Omit<User, "id" | "createdAt" | "updatedAt">
 

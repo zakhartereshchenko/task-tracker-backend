@@ -1,5 +1,5 @@
+import { Prisma, Project } from "@prisma/client";
 import prisma from "../../config/db.js"
-import { Prisma, Project } from "../../generated/prisma/default.js";
 import { ProjectsFilters } from "./project.types.js";
 
 export const getProjectById = async (id: string) => {

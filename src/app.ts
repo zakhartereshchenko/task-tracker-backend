@@ -5,6 +5,7 @@ import { authMiddleware } from './middlewares/auth.middleware.js';
 import authRoutes from './modules/Auth/auth.routes.js';
 import cookieParser from "cookie-parser";
 import cors from "cors";
+import labelsRoutes from './modules/Labels/labels.routes.js';
 
 const app = express();
 
@@ -23,5 +24,6 @@ app.use(authMiddleware);
 
 app.use("/api/users", userRoutes);
 app.use("/api/projects", projectRoutes);
+app.use("/api/labels", labelsRoutes);
 
 export default app;

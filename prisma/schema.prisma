@@ -6,7 +6,6 @@
 
 generator client {
   provider = "prisma-client-js"
-  output   = "../src/generated/prisma"
 }
 
 datasource db {
@@ -30,6 +29,7 @@ model Project {
   description String?
   createdAt   DateTime    @default(now())
   members     User[]      @relation("ProjectMembers")
+  labels      Label[]     @relation("ProjectLabels")
 }
 
 model Task {
@@ -40,7 +40,7 @@ model Task {
   priority    TaskPriority @default(MEDIUM)
   projectId   String
   creatorId   String
-  labels      String[]     @default([])
+  labels      Label[]
   createdBy   User         @relation("CreatedTasks", fields: [creatorId], references: [id])
   assigneeId  String?
   assignee    User?        @relation("AssignedTasks", fields: [assigneeId], references: [id])
@@ -48,10 +48,24 @@ model Task {
   updatedAt   DateTime     @updatedAt
 }
 
+model Label {
+  id        String   @id @default(uuid())
+  name      String
+  color     String?
+  projectId String
+  project   Project  @relation("ProjectLabels", fields: [projectId], references: [id])
+
+  tasks     Task[]
+
+  createdAt DateTime @default(now())
+
+  @@unique([name, projectId])
+}
+
 enum TaskStatus {
   TODO
   IN_PROGRESS
-  IN_REVIEW
+  IN_PREVIEW
   DONE
 }
 

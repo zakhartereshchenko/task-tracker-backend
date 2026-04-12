@@ -1,16 +1,24 @@
 import { Request, Response } from "express";
 import { createNewTask, deleteTaskById, getAllTasks, getTaskById, updateTaskById } from "./task.service.js";
-import { TaskFilters, TaskPriorityEnum, TaskStatusEnum } from "./task.types.js";
+import { CreateTaskType, TaskFilters, TaskPriorityEnum, TaskStatusEnum, TaskWithLabels } from "./task.types.js";
+import { Prisma } from "@prisma/client";
 
 export const createTask = async (req: Request, res: Response) => {
     try{
+        console.log(req.body)
         const projectId = req.params.projectId as string;
-        const task = req.body;
-
-        const newTask = await createNewTask(projectId, task);
+        const task = req.body as CreateTaskType;
+        const creatorId = req.user.id
+        console.log('task params: ', req.params)
+        const newTask = await createNewTask(projectId, task, creatorId);
 
         res.status(201).json(newTask);
     }catch(error){
+        if (error instanceof Prisma.PrismaClientValidationError) {
+            console.error("ПОДРОБНОСТИ ОШИБКИ:", error.message);
+            // Именно здесь Prisma напишет: "Field 'title' is missing" 
+            // или "Expected String, provided Int"
+        }
         res.status(500).json({error})
     }
 }
@@ -65,9 +73,9 @@ export const updateTask = async (req:Request, res:Response) => {
 export const deleteTask = async (req:Request, res:Response) => {
     try{
         const projectId = req.params.projectId as string;
-        const taskId = req.params.taskId as string;
+        const taskId = req.params.id as string;
 
-        const deletedTask = await deleteTaskById(projectId, taskId);
+        const deletedTask = await deleteTaskById({id: taskId, projectId });
 
         res.json(deletedTask);
     }catch(error){
