@@ -16,8 +16,6 @@ export const createTask = async (req: Request, res: Response) => {
     }catch(error){
         if (error instanceof Prisma.PrismaClientValidationError) {
             console.error("ПОДРОБНОСТИ ОШИБКИ:", error.message);
-            // Именно здесь Prisma напишет: "Field 'title' is missing" 
-            // или "Expected String, provided Int"
         }
         res.status(500).json({error})
     }
@@ -28,7 +26,7 @@ export const getTask = async (req: Request, res: Response) => {
         const projectId = req.params.projectId as string;
         const taskId = req.params.taskId as string;
 
-        const task = await getTaskById(taskId, projectId);
+        const task = await getTaskById({id: taskId, projectId});
 
         res.json(task);
     }catch(error){
@@ -40,16 +38,16 @@ export const getTasks = async (req:Request, res:Response) => {
     try{
         const filters: TaskFilters = {};
         const projectId = req.params.projectId as string;
-
+        console.log(req.query)
         if (req.query.status) filters.status = req.query.status as TaskStatusEnum;
         if (req.query.priority) filters.priority = req.query.priority as TaskPriorityEnum;
-        if (req.query.assigneeId) filters.assigneeId = req.query.assigneeId as string;
-        if (req.query.creatorId) filters.creatorId = req.query.creatorId as string;
+        // if (req.query.assigneeId) filters.assigneeId = req.query.assigneeId as string;
+        // if (req.query.creatorId) filters.creatorId = req.query.creatorId as string;
         if (req.query.labels) filters.labels = req.query.labels as string[];
-        if (req.query.title) filters.title = req.query.title as string;
+        // if (req.query.title) filters.title = req.query.title as string;
 
         const tasks = await getAllTasks(projectId, filters)
-
+        console.log('123', tasks)
         res.json(tasks);
     }catch(error){
         res.status(500).json({error})
@@ -62,10 +60,14 @@ export const updateTask = async (req:Request, res:Response) => {
         const taskId = req.params.taskId as string;
         const task = req.body;
 
-        const updatedTask = await updateTaskById(projectId, taskId, task);
-
+        const updatedTask = await updateTaskById({projectId, taskId, updatedData: task});
+        console.log(updatedTask)
         res.json(updatedTask);
     }catch(error){
+        if (error instanceof Prisma.PrismaClientValidationError) {
+            console.error("ПОДРОБНОСТИ ОШИБКИ:", error.message);
+        }
+        console.log(error)
         res.status(500).json({error})
     }
 }

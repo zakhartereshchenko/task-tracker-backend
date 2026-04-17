@@ -1,10 +1,25 @@
 import { Prisma, Task, TaskPriority, TaskStatus } from "@prisma/client";
 import prisma from "../../config/db.js"
-import { CreateTaskType, TaskFilters, TaskWithLabels } from "./task.types.js";
+import { TaskDTO, TaskFilters } from "./task.types.js";
 
-export const getTaskById = async (id: string, projectId: string) => {
+export const getTaskById = async ({id, projectId}:{id: string, projectId: string}) => {
     const task = await prisma.task.findFirst({
-        where: { id, projectId }
+        where: { id, projectId },
+        include: {
+            labels: true, 
+            assignee:{
+                select:{
+                    id:true, 
+                    username: true
+                }
+            },
+            createdBy:{
+                select:{
+                    id:true, 
+                    username: true
+                }
+            }
+        }
     });
 
     return task;
@@ -19,12 +34,12 @@ export const getAllTasks = async (projectId: string, filters: TaskFilters) => {
     if (filters.priority) {
         where.priority = filters.priority;
     }
-    if (filters.assigneeId) {
-        where.assigneeId = filters.assigneeId;
-    }
-    if (filters.creatorId) {
-        where.creatorId = filters.creatorId;
-    }
+    // if (filters.assigneeId) {
+    //     where.assigneeId = filters.assigneeId;
+    // }
+    // if (filters.creatorId) {
+    //     where.creatorId = filters.creatorId;
+    // }
     if (filters.labels) {
         where.labels = {
             some: {
@@ -34,9 +49,9 @@ export const getAllTasks = async (projectId: string, filters: TaskFilters) => {
             }
         };
     }
-    if (filters.title) {
-        where.title = { contains: filters.title, mode: 'insensitive' };
-    }
+    // if (filters.title) {
+    //     where.title = { contains: filters.title, mode: 'insensitive' };
+    // }
     
     const tasks = await prisma.task.findMany({
         where: { 
@@ -63,8 +78,8 @@ export const getAllTasks = async (projectId: string, filters: TaskFilters) => {
     return tasks;
 }
 
-export const createNewTask = async (projectId: string, task: CreateTaskType, creatorId: string, assigneeId?: string) => {
-    const { title, description, priority, labels, status } = task;
+export const createNewTask = async (projectId: string, task: TaskDTO, creatorId: string, assigneeId?: string) => {
+    const { title, description, priority, labels, status, assignee } = task;
     
     const data: Prisma.TaskUncheckedCreateInput = {
         title: title,
@@ -72,7 +87,7 @@ export const createNewTask = async (projectId: string, task: CreateTaskType, cre
         priority: priority ?? TaskPriority.MEDIUM,
         projectId: projectId,
         creatorId: creatorId,
-        assigneeId: assigneeId ?? null,
+        assigneeId: assignee ?? null,
         status: status ?? TaskStatus.TODO,
     }
 
@@ -100,42 +115,71 @@ export const createNewTask = async (projectId: string, task: CreateTaskType, cre
             }
         }
     });
-    console.log('newTask', newTask)
+    
     return newTask;
 }
 
-export const updateTaskById = async (id: string, projectId: string, updateData: Partial<TaskWithLabels>) => {
+export const updateTaskById = async ({taskId, projectId, updatedData}:{taskId: string, projectId: string, updatedData: Partial<TaskDTO>}) => {
     const task = await prisma.task.findFirst({
-        where: { id, projectId }
+        where: { 
+            id: taskId, 
+            projectId 
+        }
     });
 
     if (!task) {
         throw new Error("Task not found or does not belong to this project");
     }
 
-    const { labels, ...rest} = updateData
+    const data: Prisma.TaskUpdateInput = {};
 
-    const data: Prisma.TaskUpdateInput = {
-        ...rest,
-    }
+    if (updatedData.title !== undefined) data.title = updatedData.title;
+    if (updatedData.description !== undefined) data.description = updatedData.description;
+    if (updatedData.status !== undefined) data.status = updatedData.status;
+    if (updatedData.priority !== undefined) data.priority = updatedData.priority;
 
     // set labels if provided
-    if (labels) {
+    // if (labels) {
+    //     data.labels = {
+    //         set: labels.map(label => ({ id: label }))
+    //     };
+    // }
+    if (updatedData.labels) {
         data.labels = {
-            set: labels.map(label => ({ id: label }))
+            set: updatedData.labels.map(id => ({ id }))
         };
     }
 
     // set new assignee if provided
-    if (updateData.assigneeId !== undefined) {
-        data.assignee = updateData.assigneeId 
-            ? { connect: { id: updateData.assigneeId } } 
+    // if (updatedData.assigneeId !== undefined) {
+    //     data.assignee = updatedData.assigneeId 
+    //         ? { connect: { id: updatedData.assigneeId } } 
+    //         : { disconnect: true };
+    // }
+    if (updatedData.assignee !== undefined) {
+        data.assignee = updatedData.assignee
+            ? { connect: { id: updatedData.assignee } }
             : { disconnect: true };
     }
 
     return await prisma.task.update({
-        where: { id },
-        data
+        where: { id: taskId },
+        data,
+        include: {
+            labels: true,
+            assignee:{
+                select:{
+                    id:true, 
+                    username: true
+                }
+            },
+            createdBy:{
+                select:{
+                    id:true, 
+                    username: true
+                }
+            }
+        }
     });
 }
 

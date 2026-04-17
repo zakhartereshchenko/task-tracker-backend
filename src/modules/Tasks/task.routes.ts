@@ -6,7 +6,7 @@ const router = Router({ mergeParams: true});
 router.get("/", getTasks)
 router.get("/:id", getTask)
 router.post("/", createTask)
-router.put("/:id", updateTask)
+router.put("/:taskId", updateTask)
 router.delete("/:id", deleteTask)
 
 export default router;

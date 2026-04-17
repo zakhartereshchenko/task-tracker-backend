@@ -1,7 +1,6 @@
+import { Prisma, User } from "@prisma/client";
 import prisma from "../../config/db.js"
-import { User } from "../../generated/prisma/index.js";
 import { NewUser, UserFilters } from "./user.types.js";
-import { Prisma } from "../../generated/prisma/index.js";
 
 export const getUserById = async (id: string) => {
     const user = await prisma.user.findUnique({
@@ -17,8 +16,8 @@ export const getUserByUsername = async (username: string) => {
     return user;
 }
 
-export const getAllUsers = async (filters: UserFilters = {}) => {
-    const { username, projectId } = filters;
+export const getAllUsers = async ({filters={}, projectId}:{filters: UserFilters, projectId: string}) => {
+    const { username } = filters;
 
     const where: Prisma.UserWhereInput = {};
 
@@ -29,7 +28,20 @@ export const getAllUsers = async (filters: UserFilters = {}) => {
         where.projects = { some: { id: projectId } };
     }
 
-    const users = await prisma.user.findMany({ where });
+    const project = await prisma.project.findUnique({
+        where: { id: projectId },
+        include: {
+            members: true,
+        },
+    });
+
+    const users = await prisma.user.findMany({ 
+        where,
+        select: {
+            id: true,
+            username: true,
+        }
+    });
     return users;
 }
 

@@ -1,13 +1,16 @@
-import { Prisma, Task } from "@prisma/client/edge";
+import { Prisma, Task, TaskPriority, TaskStatus } from "@prisma/client/edge";
 
 
 const taskWithLabels = Prisma.validator<Prisma.TaskDefaultArgs>()({
   include: { 
-    labels: true, 
+    labels: {
+        select: {
+            id: true,
+        }
+    }, 
     assignee: {
         select: {
             id: true,
-            username: true,
         }
     }
 }
@@ -17,6 +20,15 @@ export type TaskWithDetails = Prisma.TaskGetPayload<typeof taskWithLabels>;
 
 export interface TaskWithLabels extends Task {
     labels: string[],
+}
+
+export interface TaskDTO {
+    title: string;
+    description?: string | null;
+    status: TaskStatus;
+    priority: TaskPriority;
+    labels?: string[];
+    assignee?: string | null;
 }
 
 // export type CreateTaskType = Pick<TaskWithLabels, 'title' | 'description' | 'status' | 'priority' | 'labelIds'>
