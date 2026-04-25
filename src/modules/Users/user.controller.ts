@@ -29,7 +29,7 @@ export const getUsers = async (req:Request, res:Response) => {
         res.json(users);
     } catch (error) {
         if (error instanceof Prisma.PrismaClientValidationError) {
-            console.error("ПОДРОБНОСТИ ОШИБКИ:", error.message);
+            console.error("Get users endpoint error: ", error.message);
         }
         res.status(500).json({ error });
     }

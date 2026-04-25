@@ -51,8 +51,8 @@ export enum TaskPriorityEnum {
 }
 
 export interface TaskFilters {
-    status?: TaskStatusEnum;
-    priority?: TaskPriorityEnum;
+    status?: TaskStatusEnum[];
+    priority?: TaskPriorityEnum[];
     assigneeId?: string;
     creatorId?: string;
     labels?: string[];

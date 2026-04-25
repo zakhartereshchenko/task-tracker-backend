@@ -6,13 +6,14 @@ import authRoutes from './modules/Auth/auth.routes.js';
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import labelsRoutes from './modules/Labels/labels.routes.js';
+import { CLIENT_ORIGIN } from './constants/api.js';
 
 const app = express();
 
 app.use(express.json());
 
 app.use(cors({
-  origin: "http://localhost:5173",
+  origin: CLIENT_ORIGIN,
   credentials: true,
 }));
 

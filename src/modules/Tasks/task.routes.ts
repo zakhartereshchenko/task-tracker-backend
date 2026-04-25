@@ -4,7 +4,7 @@ import { createTask, deleteTask, getTask, getTasks, updateTask } from "./task.co
 const router = Router({ mergeParams: true});
 
 router.get("/", getTasks)
-router.get("/:id", getTask)
+router.get("/:taskId", getTask)
 router.post("/", createTask)
 router.put("/:taskId", updateTask)
 router.delete("/:id", deleteTask)

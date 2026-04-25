@@ -29,10 +29,14 @@ export const getAllTasks = async (projectId: string, filters: TaskFilters) => {
     const where: Prisma.TaskWhereInput = {};
 
     if (filters.status) {
-        where.status = filters.status;
+        where.status = {
+            in: filters.status
+        };
     }
     if (filters.priority) {
-        where.priority = filters.priority;
+        where.priority = {
+            in: filters.priority
+        };
     }
     // if (filters.assigneeId) {
     //     where.assigneeId = filters.assigneeId;
@@ -49,9 +53,9 @@ export const getAllTasks = async (projectId: string, filters: TaskFilters) => {
             }
         };
     }
-    // if (filters.title) {
-    //     where.title = { contains: filters.title, mode: 'insensitive' };
-    // }
+    if (filters.title) {
+        where.title = { contains: filters.title, mode: 'insensitive' };
+    }
     
     const tasks = await prisma.task.findMany({
         where: { 
