@@ -1,6 +1,7 @@
 import { Prisma, Task, TaskPriority, TaskStatus } from "@prisma/client";
 import prisma from "../../config/db.js"
 import { TaskDTO, TaskFilters } from "./task.types.js";
+import { mapPriority, mapStatus } from "../../utils/helpers.js";
 
 export const getTaskById = async ({id, projectId}:{id: string, projectId: string}) => {
     const task = await prisma.task.findFirst({
@@ -30,12 +31,12 @@ export const getAllTasks = async (projectId: string, filters: TaskFilters) => {
 
     if (filters.status) {
         where.status = {
-            in: filters.status
+            in: filters.status.map(mapStatus)
         };
     }
     if (filters.priority) {
         where.priority = {
-            in: filters.priority
+            in: filters.priority.map(mapPriority)
         };
     }
     // if (filters.assigneeId) {
