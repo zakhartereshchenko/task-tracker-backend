@@ -65,7 +65,7 @@ model Label {
 enum TaskStatus {
   TODO
   IN_PROGRESS
-  IN_PREVIEW
+  IN_REVIEW
   DONE
 }
 
